@@ -31,7 +31,7 @@ function getOneEpisode() {
   };
 }
 
-function getAllEpisodes() {
+export function getAllEpisodes() {
   return [
     {
       id: 4952,
