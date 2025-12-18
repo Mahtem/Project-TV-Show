@@ -32,7 +32,7 @@ async function fetchEpisodes() {
 
     allEpisodes = await response.json();
 
-    clearStatus(); // remove loading message
+    clearStatus(); // 
 
     setupSearch();
     populateEpisodeSelect(allEpisodes);
@@ -137,7 +137,8 @@ function displayEpisodes(episodeList) {
     title.appendChild(link);
     card.appendChild(title);
 
-    // Image
+    // Image of each episode
+
     if (ep.image?.medium) {
       const img = document.createElement("img");
       img.src = ep.image.medium;
@@ -164,5 +165,5 @@ document.addEventListener("DOMContentLoaded", setup);
 
 // Used DOMContentLoaded instead of window.onload
 // Episode.js replaced with API fetch 
-// branch created
+// branch created 
 
