@@ -1,139 +1,167 @@
 // You can edit ALL of the code here
+// import { getAllEpisodes } from "./episodes.js";
 
-import { getAllEpisodes } from "./episodes.js";
+
+// Level-300: TV Show episodes using API
 
 let allEpisodes = [];
+const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 
-
+// ---------- Main setup ----------
 function setup() {
-  
-   allEpisodes = getAllEpisodes();
-  setupSearch();
-  displayEpisodes(allEpisodes);
-  populateEpisodeSelect(allEpisodes); 
+  showLoading();
+  fetchEpisodes();
 }
 
-// Pads a number with a leading zero if it's a single digit.
+document.addEventListener("DOMContentLoaded", setup);
 
+// ---------- Helper functions ----------
 function zeroPad(num) {
   return num.toString().padStart(2, "0");
 }
 
-// Create the episode code like S02E07 
-
 function getEpisodeCode(season, episode) {
-  const paddedSeason = zeroPad(season);
-  const paddedEpisode = zeroPad(episode);
-  return `S${paddedSeason}E${paddedEpisode}`;
+  return `S${zeroPad(season)}E${zeroPad(episode)}`;
 }
-//Search bar function
+
+// ---------- Fetch episodes ----------
+async function fetchEpisodes() {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Failed to load episode data");
+
+    allEpisodes = await response.json();
+
+    clearStatus(); // remove loading message
+
+    setupSearch();
+    populateEpisodeSelect(allEpisodes);
+    displayEpisodes(allEpisodes);
+
+  } catch (error) {
+    showError(error.message);
+  }
+}
+
+// ---------- UI status ----------
+function showLoading() {
+  const status = document.getElementById("status");
+  status.textContent = "Loading episodes, please wait...";
+}
+
+function clearStatus() {
+  const status = document.getElementById("status");
+  status.textContent = "";
+}
+
+function showError(message) {
+  const status = document.getElementById("status");
+  status.textContent = `Error loading episodes: ${message}`;
+  const root = document.getElementById("root");
+  root.innerHTML = ""; // clear previous content
+}
+
+// ---------- Search episodes ----------
 function setupSearch() {
   const searchInput = document.getElementById("search-input");
 
   searchInput.addEventListener("input", () => {
-    const searchTerm = searchInput.value.toLowerCase();
-
-    const filteredEpisodes = allEpisodes.filter((episode) => {
-      return (
-        episode.name.toLowerCase().includes(searchTerm) ||
-        episode.summary.toLowerCase().includes(searchTerm)
-      );
-    });
-
-    displayEpisodes(filteredEpisodes);
+    const term = searchInput.value.toLowerCase();
+    const filtered = allEpisodes.filter(
+      ep => ep.name.toLowerCase().includes(term) ||
+            ep.summary.toLowerCase().includes(term)
+    );
+    displayEpisodes(filtered);
   });
 }
 
-//select drop-down function, Populate the select drop-down with all episodes
+// ---------- Drop-down selector ----------
 function populateEpisodeSelect(episodeList) {
   const select = document.getElementById("episode-select");
+  select.innerHTML = '<option value="">All episodes</option>';
 
-  episodeList.forEach((episode) => {
+  episodeList.forEach(ep => {
+    const code = getEpisodeCode(ep.season, ep.number);
     const option = document.createElement("option");
-    const code = getEpisodeCode(episode.season, episode.number);
     option.value = code;
-    option.textContent = `${code} - ${episode.name}`;
+    option.textContent = `${code} - ${ep.name}`;
     select.appendChild(option);
   });
 
   select.addEventListener("change", handleEpisodeSelect);
 }
 
-// Scroll to the selected episode when chosen from the dropdown
+// Show only selected episode or all
 function handleEpisodeSelect(event) {
   const selectedCode = event.target.value;
 
-  if (selectedCode === "") {
+  if (!selectedCode) {
     displayEpisodes(allEpisodes);
     return;
   }
 
-  // Scroll to the episode element
-  const episodeElement = document.getElementById(selectedCode);
-  if (episodeElement) {
-    episodeElement.scrollIntoView({ behavior: "smooth" });
-  }
+  const filtered = allEpisodes.filter(
+    ep => getEpisodeCode(ep.season, ep.number) === selectedCode
+  );
+  displayEpisodes(filtered);
 }
 
-// Display all episodes in the given list on the page.
-
+// ---------- Display episodes ----------
 function displayEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
+  rootElem.innerHTML = "";
 
-  // 1. Clear initial content and add a simple header
-  rootElem.innerHTML = ''; 
-
-  const header = document.createElement('h1');
+  // Header
+  const header = document.createElement("h1");
   header.textContent = `Displaying ${episodeList.length} Episodes`;
   rootElem.appendChild(header);
 
-  const episodesContainer = document.createElement('section');
-  episodesContainer.id = 'episodes-container'; 
-  rootElem.appendChild(episodesContainer);
+  // Container for episode cards
+  const container = document.createElement("section");
+  container.id = "episodes-container";
+  rootElem.appendChild(container);
 
+  episodeList.forEach(ep => {
+    const code = getEpisodeCode(ep.season, ep.number);
 
-  // 2. Loop through each episode and display its information
-  episodeList.forEach(episode => {
-    // Create a container for the individual episode
-    const code = getEpisodeCode(episode.season, episode.number);
-    const episodeDiv = document.createElement('div');
-    episodeDiv.className = 'episode-card'; // Class for CSS styling
-    episodeDiv.id = code;
-    
-    // 2.1, 2.2, 2.3, 3. Episode Name and Code
+    const card = document.createElement("div");
+    card.className = "episode-card";
+    card.id = code;
 
-    
-    const title = document.createElement('h2');
-    
-    const titleLink = document.createElement('a');
-    titleLink.href = episode.url;
-    titleLink.target = '_blank';
-    titleLink.textContent = `${episode.name} - ${code}`;
-    title.appendChild(titleLink);
-    episodeDiv.appendChild(title);
-  
+    // Creating episode title and making it clickable link
+    const title = document.createElement("h2");
+    const link = document.createElement("a");
+    link.href = ep.url;
+    link.target = "_blank";
+    link.textContent = `${ep.name} - ${code}`;
+    title.appendChild(link);
+    card.appendChild(title);
 
-    // 2.4. Display image 
-    if (episode.image && episode.image.medium) {
-      const img = document.createElement('img');
-      img.src = episode.image.medium;
-      img.alt = `Poster for ${episode.name}`;
-      episodeDiv.appendChild(img);
+    // Image
+    if (ep.image?.medium) {
+      const img = document.createElement("img");
+      img.src = ep.image.medium;
+      img.alt = `Poster for ${ep.name}`;
+      card.appendChild(img);
     }
 
-    // 2.5. Summary text
-    const summary = document.createElement('div');
-    summary.innerHTML = episode.summary || 'No summary available.';
-    episodeDiv.appendChild(summary);
+    // summary of every episode
+    const summary = document.createElement("div");
+    summary.innerHTML = ep.summary || "No summary available.";
+    card.appendChild(summary);
 
-    // Append the individual episode to the container
-    episodesContainer.appendChild(episodeDiv);
+    container.appendChild(card);
   });
 }
 
- 
 
-window.onload = setup;
+document.addEventListener("DOMContentLoaded", setup);
+
+//window.onload = setup;
 
 // script.js main and helper function implemented to
 // display episode cards by reading episode data. 
+
+// Used DOMContentLoaded instead of window.onload
+// Episode.js replaced with API fetch 
+
