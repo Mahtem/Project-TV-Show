@@ -8,39 +8,43 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>
 
-<body>
-  <!-- Status messages for loading / errors -->
-  <div id="status" aria-live="polite" style="margin: 10px 0; font-weight: bold;"></div>
+  <body>
+    <!-- Status messages for loading / errors -->
+    <div
+      id="status"
+      aria-live="polite"
+      style="margin: 10px 0; font-weight: bold"
+    ></div>
+    <!--Select show bar-->
+    <label for="show-select">Select a show:</label>
+    <select id="show-select"></select>
 
-  <!-- Search bar --> 
-  <div class="search-container">
-    <label for="search-input">Search :</label>
-    <input
-      id="search-input"
-      type="text"
-      placeholder="Search ..."
-    />
-  </div>
+    <div id="status"></div>
 
-  <!-- Select drop down -->
-  <div class="episode-selector">
-    <label for="episode-select">Jump to episode:</label>
-    <select id="episode-select">
-      <option value="">All episodes</option>
-    </select>
-  </div>
+    <!-- Search bar -->
+    <div class="search-container">
+      <label for="search-input">Search :</label>
+      <input id="search-input" type="text" placeholder="Search ..." />
+    </div>
 
-  <!-- Episodes will be appended here -->
-  <div id="root"></div>
+    <!-- Select drop down -->
+    <div class="episode-selector">
+      <label for="episode-select">Jump to episode:</label>
+      <select id="episode-select">
+        <option value="">All episodes</option>
+      </select>
+    </div>
 
-  <footer>
-    Data originally sourced from 
-    <a href="https://www.tvmaze.com/" target="_blank">TVMaze.com</a>.
-  </footer>
+    <!-- Episodes will be appended here -->
+    <div id="root"></div>
 
-  <script type="module" src="script.js"></script>
-</body>
+    <footer>
+      Data originally sourced from
+      <a href="https://www.tvmaze.com/" target="_blank">TVMaze.com</a>.
+    </footer>
 
+    <script type="module" src="script.js"></script>
+  </body>
 </html>
 
 <!--index.html modified to use "module" to facilitate import export-->
