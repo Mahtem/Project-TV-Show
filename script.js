@@ -5,7 +5,10 @@
 // Level-300: TV Show episodes using API after deleting episode.js
 
 let allEpisodes = [];
-const API_URL = "https://api.tvmaze.com/shows/82/episodes";
+let allShows = [];
+const episodesCache = {};
+const SHOWS_API = "https://api.tvmaze.com/shows";
+
 
 // ---------- Main setup ----------
 function setup() {
