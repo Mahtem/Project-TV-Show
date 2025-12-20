@@ -18,17 +18,19 @@ function setup() {
   setupEventListeners();
 }
 
-// Event listeners --
-
 function setupEventListeners() {
+  // Show Search
   document.getElementById("show-search").addEventListener("input", filterShows);
   
+  // Show Dropdown
   document.getElementById("show-dropdown").addEventListener("change", (e) => {
     if (e.target.value) selectShow(e.target.value);
   });
 
+  // Episode Search
   document.getElementById("search-input").addEventListener("input", filterEpisodes);
 
+  // Episode Dropdown
   document.getElementById("episode-select").addEventListener("change", (e) => {
     const selectedCode = e.target.value;
     const filtered = selectedCode 
@@ -37,7 +39,8 @@ function setupEventListeners() {
     displayEpisodes(filtered);
   });
 
-  document.getElementById("Back-to-shows").addEventListener("click", showShowsView);
+  // Navigation: Back to Shows
+  document.getElementById("back-to-shows").addEventListener("click", showShowsView);
 }
 
 // Helper Functions -----
@@ -53,9 +56,16 @@ function getEpisodeCode(season, episode) {
 // User interface helpers  --- 
 
 function showShowsView() {
+  // 1. Toggle visibility of controls
   document.getElementById("shows-controls").classList.remove("hidden");
   document.getElementById("episodes-controls").classList.add("hidden");
   document.getElementById("back-to-shows").classList.add("hidden");
+  
+  // 2. Reset dropdowns
+  document.getElementById("show-dropdown").value = "";
+  document.getElementById("episode-select").innerHTML = '<option value="">All episodes</option>';
+  
+  // 3. Re-render the shows
   displayShows(allShows);
 }
 
@@ -89,8 +99,6 @@ async function fetchShows() {
 
 // Displaying Shows --- 
 
-// Displaying Shows --- 
-
 function displayShows(showList) {
   const root = document.getElementById("root");
   const template = document.getElementById("show-card-template");
@@ -100,24 +108,19 @@ function displayShows(showList) {
   container.id = "shows-container";
 
   showList.forEach(show => {
-    // Clone the template
     const cardInstance = template.content.cloneNode(true);
 
-    // Fill the Title and add the click event
     const title = cardInstance.querySelector(".show-title");
     title.textContent = show.name;
     title.addEventListener("click", () => selectShow(show.id));
 
-    // Fill the Image
     const img = cardInstance.querySelector(".show-img");
     img.src = show.image ? show.image.medium : 'https://via.placeholder.com/210x295?text=No+Image';
     img.alt = show.name;
 
-    // Fill the Summary
     const summary = cardInstance.querySelector(".show-summary");
     summary.innerHTML = show.summary || "No summary available.";
 
-    // Fill the Info section
     cardInstance.querySelector(".show-genres").textContent = show.genres.join(", ") || "N/A";
     cardInstance.querySelector(".show-status").textContent = show.status || "N/A";
     cardInstance.querySelector(".show-rating").textContent = show.rating?.average || "N/A";
@@ -127,11 +130,7 @@ function displayShows(showList) {
   });
   
   root.appendChild(container);
-  
-  const showCount = document.getElementById("show-count");
-  if (showCount) {
-    showCount.textContent = `Found ${showList.length} shows`;
-  }
+  document.getElementById("show-count").textContent = `Found ${showList.length} shows`;
 }
 
 // Show Search implementation
@@ -162,6 +161,7 @@ function populateShowDropdown(shows) {
 async function selectShow(showId) {
   showLoading("Loading episodes...");
 
+  // Requirement 6: Cache check
   if (episodesCache[showId]) {
     allEpisodes = episodesCache[showId];
     updateEpisodesUI();
