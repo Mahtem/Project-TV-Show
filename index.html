@@ -3,54 +3,82 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TV Show Project | Mahtem (Mahtem)</title>
+    <title>TV Show Project | Mahtem</title>
     <link href="style.css" rel="stylesheet" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>
 
   <body>
-    <!-- Status messages for loading / errors -->
-    <div
-      id="status"
-      aria-live="polite"
-      style="margin: 10px 0; font-weight: bold"
-    ></div>
+    <header>
+      <h1>Project - TV Show</h1>
+      <nav>
+        <button id="back-to-shows" class="hidden">⬅ Back to Shows Listing</button>
+      </nav>
 
-    
-  <div class="controls">
-    <!--Select show bar--> 
-    <div class="control-row">
-      <label for="show-select">Select a show:</label>
-      <select id="show-select"></select>
+      <div id="shows-controls" class="controls">
+        <div class="control-row">
+          <label for="show-search">Search Shows:</label>
+          <input id="show-search" type="text" placeholder="Search names, genres, summaries..." />
+          <span id="show-count"></span>
+        </div>
+        <div class="control-row">
+          <label for="show-dropdown">Select a Show:</label>
+          <select id="show-dropdown">
+            <option value="">Select a show...</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="episodes-controls" class="controls hidden">
+        <div class="control-row">
+          <label for="search-input">Search Episodes:</label>
+          <input id="search-input" type="text" placeholder="Search by name or summary..." />
+          <span id="episode-count"></span>
+        </div>
+        <div class="control-row">
+          <label for="episode-select">Jump to Episode:</label>
+          <select id="episode-select">
+            <option value="">All episodes</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <div id="status" aria-live="polite"></div>
+
+    <main id="root"></main>
+
+<template id="show-card-template">
+  <section class="show-card">
+    <h2 class="show-title"></h2>
+    <img class="show-img" src="" alt="">
+    <div class="show-summary"></div>
+    <div class="show-info">
+      <p><strong>Genres:</strong> <span class="show-genres"></span></p>
+      <p><strong>Status:</strong> <span class="show-status"></span></p>
+      <p><strong>Rating:</strong> <span class="show-rating"></span></p>
+      <p><strong>Runtime:</strong> <span class="show-runtime"></span> mins</p>
     </div>
-   
+  </section>
+</template>
 
-    <!-- Search bar -->
-    <div class="control-row">
-      <label for="search-input">Search :</label>
-      <input id="search-input" type="text" placeholder="Search ..." />
-    </div>
+<template id="episode-card-template">
+  <section class="episode-card">
+    <h3><a class="episode-link" target="_blank" rel="noopener noreferrer"></a></h3>
+    <img class="episode-img" src="" alt="">
+    <div class="episode-summary"></div>
+  </section>
+</template>
 
-    <!-- Select drop down -->
-    <div class="control-row">
-      <label for="episode-select">Jump to episode:</label>
-      <select id="episode-select">
-        <option value="">All episodes</option>
-      </select>
-    </div>
-  </div>
-
-    <!-- Episodes will be appended here -->
-    <div id="root"></div>
-
-    <footer>
+    <footer class="main-footer">
       Data originally sourced from
-      <a href="https://www.tvmaze.com/" target="_blank">TVMaze.com</a>.
+      <a href="https://www.tvmaze.com/" target="_blank" rel="noopener noreferrer">TVMaze.com</a>.
     </footer>
 
     <script type="module" src="script.js"></script>
   </body>
 </html>
+
 
 <!--index.html modified to use "module" to facilitate import export-->
 <!--index.html modified to handle loading episodes and error message-->
