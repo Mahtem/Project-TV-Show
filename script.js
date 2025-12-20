@@ -1,27 +1,46 @@
 // You can edit ALL of the code here
 // import { getAllEpisodes } from "./episodes.js";
 
-
-// Level-300: TV Show episodes using API after deleting episode.js
+// level-400
 
 let allEpisodes = [];
-const API_URL = "https://api.tvmaze.com/shows/82/episodes";
+let allShows = [];
+const episodesCache = {};
+const SHOWS_API = "https://api.tvmaze.com/shows";
 
 // ---------- Main setup ----------
 function setup() {
   showLoading();
-  fetchEpisodes();
+  fetchShows();
 }
-
-document.addEventListener("DOMContentLoaded", setup);
 
 // ---------- Helper functions ----------
 function zeroPad(num) {
   return num.toString().padStart(2, "0");
 }
 
+//------- Fetch shows -------
 function getEpisodeCode(season, episode) {
   return `S${zeroPad(season)}E${zeroPad(episode)}`;
+}
+
+async function fetchShows() {
+  try {
+    const response = await fetch(SHOWS_API);
+    if (!response.ok) throw new Error("Failed to load shows");
+
+    allShows = await response.json();
+
+    // Sort A–Z (case-insensitive)
+    allShows.sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+
+    clearStatus();
+    populateShowSelect(allShows);
+  } catch (error) {
+    showError(error.message);
+  }
 }
 
 // ---------- Fetch episodes ----------
@@ -32,12 +51,11 @@ async function fetchEpisodes() {
 
     allEpisodes = await response.json();
 
-    clearStatus(); // 
+    clearStatus(); //
 
     setupSearch();
     populateEpisodeSelect(allEpisodes);
     displayEpisodes(allEpisodes);
-
   } catch (error) {
     showError(error.message);
   }
@@ -46,7 +64,7 @@ async function fetchEpisodes() {
 // ---------- UI status ----------
 function showLoading() {
   const status = document.getElementById("status");
-  status.textContent = "Loading episodes, please wait...";
+  status.textContent = "Loading, please wait...";
 }
 
 function clearStatus() {
@@ -54,9 +72,9 @@ function clearStatus() {
   status.textContent = "";
 }
 
-function showError(message) {
+function showError(message) { 
   const status = document.getElementById("status");
-  status.textContent = `Error loading episodes: ${message}`;
+  status.textContent = `Error loading shows: ${message}`;
   const root = document.getElementById("root");
   root.innerHTML = ""; // clear previous content
 }
@@ -68,19 +86,36 @@ function setupSearch() {
   searchInput.addEventListener("input", () => {
     const term = searchInput.value.toLowerCase();
     const filtered = allEpisodes.filter(
-      ep => ep.name.toLowerCase().includes(term) ||
-            ep.summary.toLowerCase().includes(term)
+      (ep) =>
+        ep.name.toLowerCase().includes(term) ||
+        ep.summary.toLowerCase().includes(term)
     );
     displayEpisodes(filtered);
   });
 }
-
 // ---------- Drop-down selector ----------
+function populateShowSelect(shows) {
+  const select = document.getElementById("show-select");
+  select.innerHTML = '<option value="">Select a show</option>';
+
+  shows.forEach((show) => {
+    const option = document.createElement("option");
+    option.value = show.id;
+    option.textContent = show.name;
+    select.appendChild(option);
+  });
+
+  select.onchange = handleShowChange;
+
+}
+
 function populateEpisodeSelect(episodeList) {
   const select = document.getElementById("episode-select");
   select.innerHTML = '<option value="">All episodes</option>';
+  select.value = "";
 
-  episodeList.forEach(ep => {
+
+  episodeList.forEach((ep) => {
     const code = getEpisodeCode(ep.season, ep.number);
     const option = document.createElement("option");
     option.value = code;
@@ -88,22 +123,71 @@ function populateEpisodeSelect(episodeList) {
     select.appendChild(option);
   });
 
-  select.addEventListener("change", handleEpisodeSelect);
+  select.onchange = handleEpisodeSelect;
+
+
 }
 
 // Show only selected episode or all
+
+async function handleShowChange(event) {
+  const showId = event.target.value;
+  if (!showId) return;
+
+  showLoading();
+
+  // Use cache if available
+  if (episodesCache[showId]) {
+    allEpisodes = episodesCache[showId];
+    clearStatus();
+    refreshEpisodesUI();
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.tvmaze.com/shows/${showId}/episodes`
+    );
+    if (!response.ok) throw new Error("Failed to load episodes");
+
+    const episodes = await response.json();
+    episodesCache[showId] = episodes;
+    allEpisodes = episodes;
+
+    clearStatus();
+    refreshEpisodesUI();
+  } catch (error) {
+    showError(error.message);
+  }
+}
+
 function handleEpisodeSelect(event) {
   const selectedCode = event.target.value;
 
-  if (!selectedCode) {
+  // If user chooses "All episodes"
+  if (selectedCode === "") {
     displayEpisodes(allEpisodes);
     return;
   }
 
-  const filtered = allEpisodes.filter(
-    ep => getEpisodeCode(ep.season, ep.number) === selectedCode
-  );
-  displayEpisodes(filtered);
+  // Find the one episode that matches the code
+  const chosenEpisode = allEpisodes.filter(ep => {
+    const code = getEpisodeCode(ep.season, ep.number);
+    return code === selectedCode;
+  });
+
+  displayEpisodes(chosenEpisode);
+}
+
+
+//UI refresher helper
+
+function refreshEpisodesUI() {
+  const searchInput = document.getElementById("search-input");
+  searchInput.value = "";
+
+  populateEpisodeSelect(allEpisodes);
+  displayEpisodes(allEpisodes);
 }
 
 // ---------- Display episodes ----------
@@ -121,7 +205,7 @@ function displayEpisodes(episodeList) {
   container.id = "episodes-container";
   rootElem.appendChild(container);
 
-  episodeList.forEach(ep => {
+  episodeList.forEach((ep) => {
     const code = getEpisodeCode(ep.season, ep.number);
 
     const card = document.createElement("div");
@@ -155,15 +239,13 @@ function displayEpisodes(episodeList) {
   });
 }
 
-
 document.addEventListener("DOMContentLoaded", setup);
 
 //window.onload = setup;
 
 // script.js main and helper function implemented to
-// display episode cards by reading episode data. 
+// display episode cards by reading episode data.
 
 // Used DOMContentLoaded instead of window.onload
-// Episode.js replaced with API fetch 
-// branch created 
-
+// Episode.js replaced with API fetch
+// branch created

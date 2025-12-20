@@ -8,39 +8,48 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>
 
-<body>
-  <!-- Status messages for loading / errors -->
-  <div id="status" aria-live="polite" style="margin: 10px 0; font-weight: bold;"></div>
+  <body>
+    <!-- Status messages for loading / errors -->
+    <div
+      id="status"
+      aria-live="polite"
+      style="margin: 10px 0; font-weight: bold"
+    ></div>
 
-  <!-- Search bar --> 
-  <div class="search-container">
-    <label for="search-input">Search :</label>
-    <input
-      id="search-input"
-      type="text"
-      placeholder="Search ..."
-    />
+    
+  <div class="controls">
+    <!--Select show bar--> 
+    <div class="control-row">
+      <label for="show-select">Select a show:</label>
+      <select id="show-select"></select>
+    </div>
+   
+
+    <!-- Search bar -->
+    <div class="control-row">
+      <label for="search-input">Search :</label>
+      <input id="search-input" type="text" placeholder="Search ..." />
+    </div>
+
+    <!-- Select drop down -->
+    <div class="control-row">
+      <label for="episode-select">Jump to episode:</label>
+      <select id="episode-select">
+        <option value="">All episodes</option>
+      </select>
+    </div>
   </div>
 
-  <!-- Select drop down -->
-  <div class="episode-selector">
-    <label for="episode-select">Jump to episode:</label>
-    <select id="episode-select">
-      <option value="">All episodes</option>
-    </select>
-  </div>
+    <!-- Episodes will be appended here -->
+    <div id="root"></div>
 
-  <!-- Episodes will be appended here -->
-  <div id="root"></div>
+    <footer>
+      Data originally sourced from
+      <a href="https://www.tvmaze.com/" target="_blank">TVMaze.com</a>.
+    </footer>
 
-  <footer>
-    Data originally sourced from 
-    <a href="https://www.tvmaze.com/" target="_blank">TVMaze.com</a>.
-  </footer>
-
-  <script type="module" src="script.js"></script>
-</body>
-
+    <script type="module" src="script.js"></script>
+  </body>
 </html>
 
 <!--index.html modified to use "module" to facilitate import export-->
