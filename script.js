@@ -18,6 +18,8 @@ function setup() {
   setupEventListeners();
 }
 
+// Event listeners --
+
 function setupEventListeners() {
   document.getElementById("show-search").addEventListener("input", filterShows);
   
@@ -35,7 +37,7 @@ function setupEventListeners() {
     displayEpisodes(filtered);
   });
 
-  document.getElementById("back-to-shows").addEventListener("click", showShowsView);
+  document.getElementById("Back-to-shows").addEventListener("click", displayShowsView);
 }
 
 // Helper Functions -----
@@ -50,7 +52,7 @@ function getEpisodeCode(season, episode) {
 
 // User interface helpers  --- 
 
-function showShowsView() {
+function displayShowsView() {
   document.getElementById("shows-controls").classList.remove("hidden");
   document.getElementById("episodes-controls").classList.add("hidden");
   document.getElementById("back-to-shows").classList.add("hidden");
@@ -79,7 +81,7 @@ async function fetchShows() {
     allShows.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     
     populateShowDropdown(allShows);
-    showShowsView();
+    displayShowsView();
   } catch (err) {
     showError(err.message);
   }
@@ -263,3 +265,5 @@ function displayEpisodes(episodeList) {
 // Level -500 implementation done in script.js
 
 // script.js Level-500 branch created.
+
+// variable name changes made.
